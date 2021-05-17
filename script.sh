@@ -1,26 +1,25 @@
 #!/bin/bash
-strs=""
-out=""
-path=""
-case_sensitive=true
-while getopts :s:o:i:r: opt; do
-		case "${opt}" in
-			s ) strs+=("$OPTARG");;
-			o ) out=${OPTARG};;
-			i ) case_sensitive=false;;
-			r ) path=${OPTARG};;
+
+script_path=$(pwd)
+while getopts ":s:o:r:" opt; do
+		case ${opt} in
+			s ) 
+				strs+=${OPTARG}
+				;;
+			o ) 
+				out=${OPTARG}
+				;;
+			r ) 
+				path=${OPTARG}
+				;;
 		esac
-	done
-	shift $((OPTIND -1))
+done
+shift $((OPTIND -1))
 
 git config --global core.pager cat
-echo "$path"
+
+echo $path
 cd ${path}
 for val in "${strs[@]}"; do
-	echo $str
-	if [ ! $case_sensitive ]; then
-		git log --all --pickaxe-regex -p --color-words -G'${str}' -i > ${out}-${str}
-	else
-		git log --all --pickaxe-regex -p --color-words -G'${str}' > ${out}-${str}
-	fi
+	git log --all --pickaxe-regex -p --color-words -G$val -i 2>&1 | tee $script_path/$out-$val
 done
